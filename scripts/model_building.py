@@ -16,21 +16,20 @@ def logistic_regression(x_train,y_train,x_test,y_test):
     model_1 = LogisticRegression(class_weight='balanced')
     model_1.fit(x_train,y_train)
     predict = model_1.predict(x_test)
-    return predict
+    return model_1
 def randomforest(x_train,y_train,x_test,y_test):
     smote = SMOTE()
     x_train_balanced, y_train_balanced = smote.fit_resample(x_train, y_train)
     model_2 = RandomForestClassifier(n_estimators=100)
     model_2.fit(x_train_balanced,y_train_balanced)
-    predict = model_2.predict(x_test)
-    return predict
+    return model_2
 def gradientboost(x_train,y_train,x_test,y_test):
     smote = SMOTE()
     x_train_balanced, y_train_balanced = smote.fit_resample(x_train, y_train)
     model_3 = GradientBoostingClassifier()
     model_3.fit(x_train_balanced,y_train_balanced)
     predict=model_3.predict(x_test)
-    return predict
+    return model_3
 def cnnmodel(x_train, y_train, x_test, y_test):
     # Apply SMOTE for balancing
     smote = SMOTE()
@@ -52,10 +51,7 @@ def cnnmodel(x_train, y_train, x_test, y_test):
     # Early stopping to prevent overfitting
     early_stop = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
     model_4.fit(x_train_balanced, y_train_balanced,epochs=20,batch_size=32,validation_data=(x_test,y_test), callbacks=[early_stop])
-    prediction=model_4.predict(x_test)
-     # Convert probabilities to binary (threshold = 0.5)
-    y_pred_binary = (prediction >= 0.5).astype(int)
-    return y_pred_binary
+    return model_4
 def rnnmodel(x_train, y_train,x_test, y_test):
     #apply smote for balancing
     smote = SMOTE()
@@ -71,10 +67,7 @@ def rnnmodel(x_train, y_train,x_test, y_test):
     #easly stopping to prevent overfitting
     early_stop = EarlyStopping(monitor='val_loss',patience=3,restore_best_weights=True)
     model_5.fit(x_train_balanced,y_train_balanced,epochs=20,batch_size=32,validation_data=(x_test,y_test),callbacks=[early_stop])
-    prediction=model_5.predict(x_test)
-    #convert probabilities to binary(threshold->0.5)
-    y_pred=(prediction>=0.5).astype(int)
-    return y_pred
+    return model_5
 
 
 

@@ -11,7 +11,7 @@ from tensorflow.keras import layers
 from tensorflow.keras.layers import SimpleRNN,LSTM, Dense
 from tensorflow.keras.callbacks import EarlyStopping
 from imblearn.over_sampling import SMOTE
-
+from sklearn.utils import shuffle
 def logistic_regression(x_train,y_train,x_test,y_test):
     model_1 = LogisticRegression(class_weight='balanced')
     model_1.fit(x_train,y_train)
@@ -32,15 +32,11 @@ def gradientboost(x_train,y_train,x_test,y_test):
     predict=model_3.predict(x_test)
     return predict
 def cnnmodel(x_train, y_train, x_test, y_test):
-    from sklearn.utils import shuffle
     # Apply SMOTE for balancing
     smote = SMOTE()
     x_train_balanced, y_train_balanced = smote.fit_resample(x_train, y_train)
     # Shuffle the balanced data to ensure randomness
     x_train_balanced, y_train_balanced = shuffle(x_train_balanced, y_train_balanced)
-    # Check the shape of the balanced data
-    print(f"x_train_balanced shape: {x_train_balanced.shape}")
-    print(f"y_train_balanced shape: {y_train_balanced.shape}")
     # Reshape for CNN input
     x_train_balanced = x_train_balanced.to_numpy().reshape(x_train_balanced.shape[0], x_train_balanced.shape[1], 1)
     x_test = x_test.to_numpy().reshape(x_test.shape[0], x_test.shape[1], 1)
@@ -60,6 +56,25 @@ def cnnmodel(x_train, y_train, x_test, y_test):
      # Convert probabilities to binary (threshold = 0.5)
     y_pred_binary = (prediction >= 0.5).astype(int)
     return y_pred_binary
+def rnnmodel(x_train, y_train,x_test, y_test):
+    #apply smote for balancing
+    smote = SMOTE()
+    x_train_balanced,y_train_balanced=smote.fit_resample(x_train,y_train)
+    x_train_balanced,y_train_balanced = shuffle(x_train_balanced, y_train_balanced)
+    #reshape for cnn
+    x_train_balanced=x_train_balanced.to_numpy().reshape(x_train_balanced.shape[0], x_train_balanced.shape[1],1)#ensures that we are inputing a 3d input
+    x_test = x_test.to_numpy().reshape(x_test.shape[0],x_test.shape[1],1)
+    model_5 = Sequential([layers.SimpleRNN(units=50,input_shape=(x_train.shape[1],1),activation='relu'),
+                          Dense(units=1,activation='sigmoid')])
+    #compile model
+    model_5.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
+    #easly stopping to prevent overfitting
+    early_stop = EarlyStopping(monitor='val_loss',patience=3,restore_best_weights=True)
+    model_5.fit(x_train_balanced,y_train_balanced,epochs=20,batch_size=32,validation_data=(x_test,y_test),callbacks=[early_stop])
+    prediction=model_5.predict(x_test)
+    #convert probabilities to binary(threshold->0.5)
+    y_pred=(prediction>=0.5).astype(int)
+    return y_pred
 
 
 
